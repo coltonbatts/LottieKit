@@ -1,0 +1,52 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "LottieKit Template Schema",
+  "type": "object",
+  "required": ["id", "name", "version", "params", "template"],
+  "properties": {
+    "id": { "type": "string" },
+    "name": { "type": "string" },
+    "version": { "type": "string" },
+    "description": { "type": "string" },
+    "category": { "type": "string" },
+    "compatibility": {
+      "type": "object",
+      "properties": {
+        "renderers": {
+          "type": "array",
+          "items": { "type": "string", "enum": ["web"] }
+        },
+        "notes": { "type": "string" }
+      }
+    },
+    "params": {
+      "type": "object",
+      "description": "Parameter definitions usable in the template via ${params.<key>} tokens.",
+      "additionalProperties": {
+        "type": "object",
+        "required": ["type"],
+        "properties": {
+          "type": { "type": "string", "enum": ["number", "string", "color", "boolean", "enum"] },
+          "default": {},
+          "min": { "type": "number" },
+          "max": { "type": "number" },
+          "enum": { "type": "array", "items": {} },
+          "unit": { "type": "string" },
+          "description": { "type": "string" }
+        }
+      }
+    },
+    "constraints": {
+      "type": "object",
+      "description": "Optional high-level constraints (e.g., max layers, feature flags).",
+      "properties": {
+        "maxLayers": { "type": "number" },
+        "allowExpressions": { "type": "boolean" }
+      }
+    },
+    "template": {
+      "type": "object",
+      "description": "Lottie JSON with ${params.*} tokens that will be replaced at generation time."
+    }
+  }
+}
