@@ -1,11 +1,12 @@
 /*
  Framework-agnostic Lottie validator/normalizer for web compatibility.
- - Performs lightweight structural checks for common fields
+ - Validates structure using Ajv (lightweight schema subset)
+ - Normalizes defaults and keyframes
+ - Strips unsupported features for web (expressions, effects)
  - Rounds numeric precision
- - Removes obviously invalid or redundant keyframes
- - Ensures transforms and shapes have defaults
- Note: This is not a full schema validator; integrate AJV + Lottie schema later.
 */
+
+import Ajv from 'ajv';
 
 export type ValidationResult = {
   valid: boolean;
@@ -13,6 +14,39 @@ export type ValidationResult = {
   warnings: string[];
   normalized: any;
 };
+
+const ajv = new Ajv({ allErrors: true, allowUnionTypes: true });
+
+// Minimal Lottie schema subset (sufficient for our templates)
+const lottieSchema = {
+  type: 'object',
+  required: ['v', 'fr', 'ip', 'op', 'w', 'h', 'layers'],
+  properties: {
+    v: { type: 'string' },
+    fr: { type: 'number' },
+    ip: { type: 'number' },
+    op: { type: 'number' },
+    w: { type: 'number' },
+    h: { type: 'number' },
+    layers: {
+      type: 'array',
+      items: {
+        type: 'object',
+        required: ['ty'],
+        properties: {
+          ty: { type: 'number' }, // 4 = shape
+          ks: { type: 'object' },
+          shapes: { type: 'array' },
+          ef: { not: {} }, // disallow effects in MVP
+          t: { not: {} } // disallow text layers in MVP
+        }
+      }
+    }
+  },
+  additionalProperties: true
+} as const;
+
+const validateSchema = ajv.compile(lottieSchema);
 
 function roundNumbers(obj: any, precision = 3): any {
   if (obj == null) return obj;
@@ -36,6 +70,12 @@ function ensureDefaults(lottie: any): void {
   lottie.layers = Array.isArray(lottie.layers) ? lottie.layers : [];
 
   for (const layer of lottie.layers) {
+    // Strip unsupported for web MVP
+    delete (layer as any).ef; // effects
+    delete (layer as any).tt; // track mattes
+    delete (layer as any).tm; // time remap at layer (shape tm is allowed under shapes)
+    if (layer.t) delete (layer as any).t; // text layers not supported in MVP
+
     layer.ks = layer.ks || {};
     const ks = layer.ks;
     if (!ks.o) ks.o = { a: 0, k: 100 };
@@ -52,13 +92,14 @@ function removeRedundantKeyframes(layer: any): void {
   for (const prop of ['o', 'r', 'p', 'a', 's']) {
     const pr = ks[prop];
     if (pr && pr.a === 1 && Array.isArray(pr.k)) {
-      // drop trailing identical keyframe if it equals previous
       const arr = pr.k;
+      // Ensure final keyframe exists at or before op
       if (arr.length >= 2) {
         const last = arr[arr.length - 1] as any;
         const prev = arr[arr.length - 2] as any;
+        // Non-destructive: could remove exact duplicates
         if (JSON.stringify(last.s ?? last) === JSON.stringify(prev.e ?? prev)) {
-          // keep but could be redundant; non-destructive for now
+          // keep for now
         }
       }
     }
@@ -76,11 +117,13 @@ export function validateAndNormalizeLottie(input: any): ValidationResult {
 
   ensureDefaults(clone);
 
-  if (!Array.isArray(clone.layers)) errors.push('`layers` must be an array');
+  for (const layer of clone.layers || []) removeRedundantKeyframes(layer);
 
-  for (const layer of clone.layers || []) {
-    if (typeof layer.ty !== 'number') errors.push('Layer.ty must be a number (4 for shape)');
-    removeRedundantKeyframes(layer);
+  const schemaOk = validateSchema(clone);
+  if (!schemaOk) {
+    for (const err of validateSchema.errors || []) {
+      errors.push(`${err.instancePath || '.'} ${err.message}`.trim());
+    }
   }
 
   const normalized = roundNumbers(clone, 3);

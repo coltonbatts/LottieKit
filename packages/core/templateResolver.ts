@@ -55,19 +55,27 @@ function evalCalcExpression(expr: string, params: TemplateParams): number {
   const out: Tok[] = [];
   const ops: Tok[] = [];
   const prec: Record<string, number> = { '+': 1, '-': 1, '*': 2, '/': 2 };
+  let prevTok: Tok | null = null;
   for (const t of tokens) {
-    if (t.t === 'num' || t.t === 'ident') out.push(t);
-    else if (t.t === 'op') {
+    if (t.t === 'num' || t.t === 'ident') {
+      out.push(t);
+    } else if (t.t === 'op') {
+      // Handle unary minus by injecting a leading zero
+      if (t.v === '-' && (prevTok == null || prevTok.t === 'op' || prevTok.t === 'lp')) {
+        out.push({ t: 'num', v: '0' } as Tok);
+      }
       while (ops.length && ops[ops.length - 1].t === 'op' && prec[(ops[ops.length - 1] as any).v] >= prec[t.v]) {
         out.push(ops.pop()!);
       }
       ops.push(t);
-    } else if (t.t === 'lp') ops.push(t);
-    else if (t.t === 'rp') {
+    } else if (t.t === 'lp') {
+      ops.push(t);
+    } else if (t.t === 'rp') {
       while (ops.length && ops[ops.length - 1].t !== 'lp') out.push(ops.pop()!);
       if (!ops.length) throw new Error('Mismatched parentheses in calc()');
       ops.pop();
     }
+    prevTok = t;
   }
   while (ops.length) {
     const op = ops.pop()!;
