@@ -1,5 +1,8 @@
 # LottieKit
 
+[![CI](https://github.com/coltonbatts/LottieKit/actions/workflows/ci.yml/badge.svg)](https://github.com/coltonbatts/LottieKit/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+
 AI-assisted Lottie animation system that generates, edits, and optimizes Lottie JSON from natural language while teaching motion principles.
 
 ## Overview
@@ -42,6 +45,24 @@ LottieKit/
 - `button_tap_ripple`
 
 Planned next: text reveal (fade+slide), progress bar fill, icon pop/bounce, error cross wiggle, slide transition (L/R), toggle switch, confetti burst.
+
+## Quickstart
+
+Resolve and validate the `gentle_pulse_loader` template in one script.
+
+```ts
+import { readFileSync } from 'node:fs';
+import { sanitizeParams, resolveTemplateToObject } from './packages/core/templateResolver';
+import { validateAndNormalizeLottie } from './packages/core/lottieValidator';
+
+const def = JSON.parse(readFileSync('templates/gentle_pulse_loader.json', 'utf8'));
+const params = sanitizeParams(def, { size: 160, durationFrames: 90, colorPrimary: '#4F46E5' });
+const lottie = resolveTemplateToObject(JSON.stringify(def.template), params);
+const { valid, normalized, errors } = validateAndNormalizeLottie(lottie);
+
+if (!valid) console.error('Validation errors:', errors);
+console.log('Final bytes:', Buffer.from(JSON.stringify(normalized)).byteLength);
+```
 
 ## Core Utilities
 

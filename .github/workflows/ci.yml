@@ -1,0 +1,36 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build-and-test-core:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      - name: Install root deps (if any)
+        run: |
+          if [ -f package.json ]; then
+            npm ci
+          else
+            echo "No root package.json; skipping root install."
+          fi
+
+      - name: Install core deps
+        run: npm --prefix packages/core install
+
+      - name: Build core
+        run: npm --prefix packages/core run build
+
+      - name: Test core
+        run: npm --prefix packages/core test
