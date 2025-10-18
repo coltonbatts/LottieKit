@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>LottieKit Preview</title>
+    <style>
+      body { font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, Helvetica Neue, Arial, Apple Color Emoji, Segoe UI Emoji; margin: 0; padding: 0; color: #0f172a; background: #f8fafc; }
+      .container { max-width: 1100px; margin: 0 auto; padding: 24px; }
+      .row { display: flex; gap: 24px; align-items: flex-start; }
+      .card { background: white; border: 1px solid #e2e8f0; border-radius: 10px; padding: 16px; box-shadow: 0 1px 2px rgba(0,0,0,0.04); }
+      .left { width: 360px; }
+      .right { flex: 1; }
+      .toolbar { display: flex; gap: 12px; margin-top: 12px; }
+      .btn { padding: 8px 12px; border-radius: 8px; border: 1px solid #cbd5e1; background: #f1f5f9; cursor: pointer; }
+      .btn.primary { background: #0ea5e9; color: white; border-color: #0284c7; }
+      .select, .input { width: 100%; padding: 8px 10px; border-radius: 8px; border: 1px solid #cbd5e1; background: white; }
+      .label { font-size: 12px; color: #475569; margin-bottom: 4px; display: block; }
+      .toast { position: fixed; right: 16px; bottom: 16px; background: #fee2e2; color: #991b1b; border: 1px solid #fecaca; padding: 10px 12px; border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.08); }
+      .previewBox { display:flex; align-items:center; justify-content:center; background: #0b10201a; border: 1px dashed #cbd5e1; border-radius: 10px; min-height: 360px; }
+      .meta { font-size: 12px; color: #475569; margin-top: 8px; }
+    </style>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

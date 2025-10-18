@@ -23,10 +23,26 @@ LottieKit/
     gentle_pulse_loader.json
     success_checkmark_bounce.json
     button_tap_ripple.json
+    text_reveal_stagger.json
   packages/
     core/
       templateResolver.ts
       lottieValidator.ts
+      index.ts
+      tests/
+    preview/
+      src/
+        App.tsx
+        main.tsx
+        store.ts
+        components/
+          Controls.tsx
+          PlaybackControls.tsx
+        utils/
+          templateLoader.ts
+      vite.config.ts
+      tsconfig.json
+      index.html
 ```
 
 ## Templates
@@ -38,13 +54,14 @@ LottieKit/
     - `${calc(expr)}` to evaluate numeric expressions (supports `+ - * /`, parentheses, and `params.*`).
     - `${color(#RRGGBB)}` converts hex to `[r,g,b,a]` arrays.
 
-### Current patterns (3/10)
+### Current patterns (4/10)
 
 - `gentle_pulse_loader`
 - `success_checkmark_bounce`
 - `button_tap_ripple`
+- `text_reveal_stagger` - 5-letter text reveal with fade + slide animation (HELLO)
 
-Planned next: text reveal (fade+slide), progress bar fill, icon pop/bounce, error cross wiggle, slide transition (L/R), toggle switch, confetti burst.
+Planned next: progress bar fill, icon pop/bounce, error cross wiggle, slide transition (L/R), toggle switch, confetti burst.
 
 ## Quickstart
 
@@ -63,6 +80,32 @@ const { valid, normalized, errors } = validateAndNormalizeLottie(lottie);
 if (!valid) console.error('Validation errors:', errors);
 console.log('Final bytes:', Buffer.from(JSON.stringify(normalized)).byteLength);
 ```
+
+## Preview App
+
+A polished dark-themed preview app built with Vite + React + TypeScript in `packages/preview/`.
+
+### Features
+- **Live Preview**: Real-time Lottie animation rendering with lottie-react
+- **Parameter Controls**: Sliders for speed, stagger, slide distance, font size, spacing, and color picker
+- **Style Presets**: Minimal, Playful, and Cinematic preset configurations
+- **Playback Controls**: Play/pause, restart, and frame counter
+- **Export**: Download generated Lottie JSON with one click
+- **Dark UI**: Clean #0A0A0A background with Inter font and smooth transitions
+
+### Run Preview
+
+```bash
+# From repo root
+npm run preview
+
+# Or from preview package
+cd packages/preview
+npm install
+npm run dev
+```
+
+Then open `http://localhost:5174` (or the printed URL) to see the text reveal animation in action.
 
 ## Core Utilities
 

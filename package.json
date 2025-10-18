@@ -1,0 +1,10 @@
+{
+  "name": "lottiekit-root",
+  "private": true,
+  "version": "0.1.0",
+  "scripts": {
+    "preview": "npm --prefix packages/preview run dev",
+    "build:preview": "npm --prefix packages/preview run build",
+    "test": "npm --prefix packages/core test"
+  }
+}
